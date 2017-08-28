@@ -16,10 +16,10 @@ public class Perceptron {
         return fire() - bias >= 0? 1.0 : 0.0;
     }
 
-    // in this simple implementation,
+    // in this simple implementation, just
+    // give what I *think* is the dot product of inputs and weights.
     protected double fire() {
-        double val = 0.0;
-        val = vectors.stream()
+        double val = vectors.stream()
                 .mapToDouble( v -> v.getInput().value() * v.getWeight() )
                 .sum();
 
