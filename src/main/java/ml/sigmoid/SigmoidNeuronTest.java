@@ -34,7 +34,7 @@ public class SigmoidNeuronTest {
                 Input input1 = new Input(value);
                 neuron.addInput(input1, weight);
                 System.out.println(value + " " + weight + ": " + neuron.value());
-                //...
+                //.....
             }
         }
     }
