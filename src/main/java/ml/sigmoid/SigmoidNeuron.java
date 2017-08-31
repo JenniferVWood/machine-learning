@@ -17,6 +17,7 @@ public class SigmoidNeuron extends Perceptron {
 
     private double s(List<Vector> vectors) {
         double dot = super.fire();
+        // somewhat goofy inheritance setup...
         double z = dot + super.getBias();
 
         return 1 / Math.pow(1 + Math.E, z);
