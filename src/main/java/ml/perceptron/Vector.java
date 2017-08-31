@@ -1,13 +1,15 @@
 package ml.perceptron;
 
+import ml.net.Node;
+
 /**
  * Describes relationship between a pair of nodes
  */
 public class Vector {
     private double weight;
-    private Perceptron input;
+    private Node input;
 
-    public Vector(double weight, Perceptron input) {
+    public Vector(double weight, Node input) {
         this.weight = weight;
         this.input = input;
     }
@@ -20,7 +22,7 @@ public class Vector {
         this.weight = weight;
     }
 
-    public Perceptron getInput() {
+    public Node getInput() {
         return input;
     }
 

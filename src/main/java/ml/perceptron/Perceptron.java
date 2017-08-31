@@ -30,7 +30,7 @@ public class Perceptron implements Node {
     }
 
     @Override
-    public void addInput(Perceptron input, double weight) {
+    public void addInput(Node input, double weight) {
         Vector vector = new Vector(weight, input);
         vectors.add(vector);
     }
