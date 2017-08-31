@@ -58,5 +58,20 @@ public class NeuralNet {
         }
     }
 
+    /**
+     *  (from the paper this is based on (http://neuralnetworksanddeeplearning.com/chap1.html):
+     *
+     * Train the neural network using mini-batch stochastic
+     * gradient descent.
+     *
+     * The training_data is a list of tuples (x, y) representing the training inputs and corresponding desired outputs.
+     * The variables epochs and mini_batch_size are what you'd expect - the number of epochs to train for,
+     * and the size of the mini-batches to use when sampling. eta is the learning rate, ηη. If the optional argument test_data is supplied,
+     * then the program will evaluate the network after each epoch of training, and print out partial progress.
+     * This is useful for tracking progress, but slows things down substantially.
+     */
+    public void SGD(double[][] trainingData, int numEpochs, int miniBatchSize, double learningRateETA,  boolean showProgress) {
 
+
+    }
 }

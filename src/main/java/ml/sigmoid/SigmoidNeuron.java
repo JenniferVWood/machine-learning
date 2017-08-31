@@ -1,9 +1,6 @@
 package ml.sigmoid;
 
 import ml.perceptron.Perceptron;
-import ml.perceptron.Vector;
-
-import java.util.List;
 
 public class SigmoidNeuron extends Perceptron {
 

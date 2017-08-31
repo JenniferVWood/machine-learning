@@ -14,6 +14,18 @@ public class Perceptron implements Node {
     }
 
 
+    /**
+     * recursively fires up the tree!
+     *
+     * It might be worth caching the output value, because
+     * it will fire once for each child node, and the result won't change.
+     *
+     * Regardless, since doing it this way is a recursive, bottom-up tree traversal,
+     * it's really slow.
+     *
+     * It's effective in that it shows what's happening *conceptually*, but we're
+     * probably better off doing this with raw arrays, like it says in the book.
+     */
     @Override
     public double value() {
         return fire() - bias >= 0? 1.0 : 0.0;
