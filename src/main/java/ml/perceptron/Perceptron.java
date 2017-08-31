@@ -1,9 +1,11 @@
 package ml.perceptron;
 
+import ml.net.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Perceptron {
+public class Perceptron implements Node {
     private List<Vector> vectors = new ArrayList<>();
     private double bias = 0.0;
 
@@ -12,6 +14,7 @@ public class Perceptron {
     }
 
 
+    @Override
     public double value() {
         return fire() - bias >= 0? 1.0 : 0.0;
     }
@@ -26,23 +29,28 @@ public class Perceptron {
         return val;
     }
 
+    @Override
     public void addInput(Perceptron input, double weight) {
         Vector vector = new Vector(weight, input);
         vectors.add(vector);
     }
 
+    @Override
     public List<Vector> getVectors() {
         return vectors;
     }
 
+    @Override
     public void setVectors(List<Vector> vectors) {
         this.vectors = vectors;
     }
 
+    @Override
     public double getBias() {
         return bias;
     }
 
+    @Override
     public void setBias(double bias) {
         this.bias = bias;
     }
