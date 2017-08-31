@@ -1,17 +1,19 @@
 package ml.net;
 
-import ml.perceptron.Perceptron;
+import ml.perceptron.Input;
 import ml.sigmoid.SigmoidNeuron;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 public class NeuralNet {
     private final int numLayers;
     private final int[] sizes;
 
+    // the list of Nodes contains its own structure,
+    // so, while the 2-d array isn't strictly necessary
+    // it does make it easier to reason about.
     private List<List<Node>> nodes;
 
 
@@ -24,12 +26,22 @@ public class NeuralNet {
     private void initRandomWeightsAndBiases() {
         Random random = new Random();
 
-        // initialize the biases
-        for (int l = 0; l < numLayers; l++) {
+        // do we need to define this as a separate instance variable?
+        // I don't think so... yet...
+        List<Node> inputs = new ArrayList<>();
+        for (int i = 0; i < sizes[0]; i++) {
+            Input input = new Input(0.0); // we'll set this later
+            inputs.add(input);
+        }
+        nodes.add(inputs);
+
+        // initialize the biases for the rest of the layers
+        for (int l = 1; l < numLayers; l++) {
             List<Node> layer = new ArrayList<>();
             for (int n = 0; n < sizes[l]; n++) {
                 layer.add(new SigmoidNeuron(random.nextDouble()));
             }
+            nodes.add(layer);
         }
 
         // now plug all the layers together with random weights.
