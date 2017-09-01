@@ -39,12 +39,12 @@ public class NeuralNet {
 
 
         List<List<Double>> expectedOutput = new ArrayList<>();
-        inputs.add(toDList(new double[]{0.0}));
-        inputs.add(toDList(new double[]{1.0}));
-        inputs.add(toDList(new double[]{1.0}));
-        inputs.add(toDList(new double[]{0.0}));
+        expectedOutput.add(toDList(new double[]{0.0}));
+        expectedOutput.add(toDList(new double[]{1.0}));
+        expectedOutput.add(toDList(new double[]{1.0}));
+        expectedOutput.add(toDList(new double[]{0.0}));
 
-        net.run(inputs, expectedOutput, 0.9, 5000);
+        net.run(inputs, expectedOutput, 0.009, 500000);
     }
 
 
@@ -216,6 +216,7 @@ public class NeuralNet {
 //                System.out.print(expectedOutputs[p][x] + " ");
 //            }
 
+            System.out.print("EXPECTED OUTPUTS: ");
             for (int i = 0; i < getOutputLayer().size(); i++) {
                 System.out.print(expectedOutputs.get(p).get(i) + " ");
             }
