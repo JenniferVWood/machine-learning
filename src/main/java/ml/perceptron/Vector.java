@@ -7,6 +7,11 @@ import ml.net.Node;
  */
 public class Vector {
     private double weight;
+
+    // for learning via backpropagation
+    private double prevDeltaWeight;
+    private double deltaWeight;
+
     private Node input;
 
     public Vector(double weight, Node input) {
@@ -27,6 +32,26 @@ public class Vector {
     }
 
     public void setInput(Perceptron input) {
+        this.input = input;
+    }
+
+    public double getPrevDeltaWeight() {
+        return prevDeltaWeight;
+    }
+
+    public void setPrevDeltaWeight(double prevDeltaWeight) {
+        this.prevDeltaWeight = prevDeltaWeight;
+    }
+
+    public double getDeltaWeight() {
+        return deltaWeight;
+    }
+
+    public void setDeltaWeight(double deltaWeight) {
+        this.deltaWeight = deltaWeight;
+    }
+
+    public void setInput(Node input) {
         this.input = input;
     }
 }

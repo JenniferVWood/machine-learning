@@ -16,4 +16,6 @@ public class Input extends Perceptron {
     public double value() {
         return value;
     }
+
+    public void setValue() {this.value = value;}
 }
