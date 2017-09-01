@@ -15,13 +15,42 @@ public class NeuralNet {
     private final double epsilon = 0.000001;
     private final double momentum = 0.7f;
 
-    // for now... this is our expected output
-    final double expectedOutputs[][] = { { 0 }, { 1 }, { 1 }, { 0 } };
 
     // the list of Nodes contains its own structure,
     // so, while the 2-d array isn't strictly necessary
     // it does make it easier to reason about.
-    private List<List<Node>> nodes;
+    private List<List<Node>> nodes = new ArrayList<>();
+
+
+    public static void main(String[] args) {
+
+        // let's see if we can train it to build an xor circuit.
+        NeuralNet net = new NeuralNet(new int[]{2, 4, 1});
+        List<List<Double>> inputs = new ArrayList<>();
+        double i1[] = new double[] {1, 1};
+        double i2[] = new double[] {1, 0};
+        double i3[] = new double[] {0, 1};
+        double i4[] = new double[] {0, 0};
+
+        inputs.add(toDList(i1));
+        inputs.add(toDList(i2));
+        inputs.add(toDList(i3));
+        inputs.add(toDList(i4));
+
+
+        List<List<Double>> expectedOutput = new ArrayList<>();
+        inputs.add(toDList(new double[]{0.0}));
+        inputs.add(toDList(new double[]{1.0}));
+        inputs.add(toDList(new double[]{1.0}));
+        inputs.add(toDList(new double[]{0.0}));
+
+        net.run(inputs, expectedOutput, 0.9, 5000);
+    }
+
+
+    private static List<Double> toDList(double values[]) {
+        return Arrays.stream(values).boxed().collect(Collectors.toList());
+    }
 
 
     public NeuralNet(int[] sizes) {
@@ -55,7 +84,7 @@ public class NeuralNet {
         // now plug all the layers together with random weights.
         // (this is where the performance cost of OO starts to become obvious
         // in this context
-        for (int l = 0; l <= nodes.size(); l++) {
+        for (int l = 0; l < nodes.size() -1; l++) {
             // wire each node to all the nodes in the next layer
             List<Node> layer = nodes.get(l);
             for (Node node : layer) {
@@ -66,99 +95,13 @@ public class NeuralNet {
         }
     }
 
-//    /**
-//     *  (from the paper this is based on (http://neuralnetworksanddeeplearning.com/chap1.html):
-//     *
-//     * Train the neural network using mini-batch stochastic
-//     * gradient descent.
-//     *
-//     * The training_data is a list of tuples (x, y) representing the training inputs and corresponding desired outputs.
-//     * The variables epochs and mini_batch_size are what you'd expect - the number of epochs to train for,
-//     * and the size of the mini-batches to use when sampling. eta is the learning rate, ηη. If the optional argument test_data is supplied,
-//     * then the program will evaluate the network after each epoch of training, and print out partial progress.
-//     * This is useful for tracking progress, but slows things down substantially.
-//     */
-//    public void SGD(List<List<Double>> trainingData, int numEpochs, int miniBatchSize, double learningRateETA,  boolean showProgress) {
-///*
-//      if test_data: n_test = len(test_data)
-//        n = len(training_data)
-//        for j in xrange(epochs):
-//            random.shuffle(training_data)
-//            mini_batches = [
-//                training_data[k:k+mini_batch_size]
-//                for k in xrange(0, n, mini_batch_size)]
-//            for mini_batch in mini_batches:
-//                self.update_mini_batch(mini_batch, eta)
-//            if test_data:
-//                print "Epoch {0}: {1} / {2}".format(
-//                    j, self.evaluate(test_data), n_test)
-//            else:
-//                print "Epoch {0} complete".format(j)
-// */
-//        int nTest = 0;
-//        if (showProgress) {
-//            nTest = trainingData.size();
-//        }
-//
-//        int n = trainingData.size();
-//
-//        for (int j = 0; j < trainingData.size(); j++) {
-//            List<List<List<Double>>> miniBatches = new ArrayList<>(); // whoah
-//
-//            Collections.shuffle(trainingData);
-//
-//            for (int k = 0; k < n; k+= miniBatchSize) {
-//                int end = k+miniBatchSize < trainingData.size()? k+miniBatchSize : trainingData.size() - 1;
-//                List<List<Double>> miniBatch = trainingData.subList(k, end);
-//                miniBatches.add(miniBatch);
-//            }
-//
-//            for (List<List<Double>> miniBatch : miniBatches) {
-//                updateMiniBatch(miniBatch, learningRateETA);
-//            }
-//        }
-//
-//    }
-//
-
-
-//    // this was a mess to unwrap using my conceptual model.  Abort!
-//    private void updateMiniBatch(List<List<Double>> miniBatch, double learningRateETA) {
-//        /*
-//         def update_mini_batch(self, mini_batch, eta):
-//        """Update the network's weights and biases by applying
-//        gradient descent using backpropagation to a single mini batch.
-//        The "mini_batch" is a list of tuples "(x, y)",
-//                where x and y are lists of inputs and expected outputs
-//        and "eta" is the learning rate."""
-//
-//        nabla_b = [np.zeros(b.shape) for b in self.biases]
-//        nabla_w = [np.zeros(w.shape) for w in self.weights]
-//        this just makes two new 2d arrays the size of the net, essentially
-//
-//        for x, y in mini_batch:
-//            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-//            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-//            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-//        self.weights = [w-(eta/len(mini_batch))*nw
-//                        for w, nw in zip(self.weights, nabla_w)]
-//        self.biases = [b-(eta/len(mini_batch))*nb
-//                       for b, nb in zip(self.biases, nabla_b)]
-//         */
-//
-//        Map<Node, List<Double>> nablas = new HashMap<>();
-//        for (List<Double> x : miniBatch) {
-//            for (Double y : x) {
-////                nablas.add(backprop(x, y));
-//            }
-//        }
-//    }
-
-
-    // try using this implementation
-    // https://kunuk.wordpress.com/2010/10/11/neural-network-backpropagation-with-java/
-
-    private void runMiniBatch(List<List<Double>> inputs, List<List<Double>> expectedOutputs, double learningRateETA, int maxSteps) {
+    /* I first attempted to do gradient descent from the code from (http://neuralnetworksanddeeplearning.com/chap1.html):
+    * but that was a mess to translate, given my conceptual model.
+    *
+    * Using this implementation instead:
+    * https://kunuk.wordpress.com/2010/10/11/neural-network-backpropagation-with-java/
+    */
+    private void run(List<List<Double>> inputs, List<List<Double>> expectedOutputs, double learningRateETA, int maxSteps) {
         double minError = 0.001; // for now... we should parameterize this.
 //        List<List<Double>> resultOutputs = new ArrayList<>();
         int i;
@@ -181,7 +124,7 @@ public class NeuralNet {
             }
         }
 
-        printResult();
+        printResult(expectedOutputs);
 
         System.out.println("Sum of squared errors = " + error);
         System.out.println("##### EPOCH " + i+"\n");
@@ -256,7 +199,7 @@ public class NeuralNet {
 
 
 
-    private void printResult()
+    private void printResult(List<List<Double>> expectedOutputs)
     {
         System.out.println("NN example with xor training");
         for (int p = 0; p < getInputLayer().size(); p++) {
@@ -274,7 +217,7 @@ public class NeuralNet {
 //            }
 
             for (int i = 0; i < getOutputLayer().size(); i++) {
-                System.out.print(expectedOutputs[p][i] + " ");
+                System.out.print(expectedOutputs.get(p).get(i) + " ");
             }
 
 
