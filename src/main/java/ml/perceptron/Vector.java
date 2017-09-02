@@ -3,7 +3,7 @@ package ml.perceptron;
 import ml.net.Node;
 
 /**
- * Describes relationship between a pair of nodes
+ * Describes relationship between a pair of nodes (double-linked list)
  */
 public class Vector {
     private double weight;
@@ -13,6 +13,7 @@ public class Vector {
     private double deltaWeight;
 
     private Node input;
+    private Node output;
 
     public Vector(double weight, Node input) {
         this.weight = weight;
@@ -48,10 +49,19 @@ public class Vector {
     }
 
     public void setDeltaWeight(double deltaWeight) {
+        this.prevDeltaWeight = this.deltaWeight;
         this.deltaWeight = deltaWeight;
     }
 
     public void setInput(Node input) {
         this.input = input;
+    }
+
+    public Node getOutput() {
+        return output;
+    }
+
+    public void setOutput(Node output) {
+        this.output = output;
     }
 }

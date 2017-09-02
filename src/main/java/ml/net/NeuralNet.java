@@ -26,16 +26,16 @@ public class NeuralNet {
 
         // let's see if we can train it to build an xor circuit.
         NeuralNet net = new NeuralNet(new int[]{2, 4, 1});
-        List<List<Double>> inputs = new ArrayList<>();
+        List<List<Double>> testInputs = new ArrayList<>();
         double i1[] = new double[] {1, 1};
         double i2[] = new double[] {1, 0};
         double i3[] = new double[] {0, 1};
         double i4[] = new double[] {0, 0};
 
-        inputs.add(toDList(i1));
-        inputs.add(toDList(i2));
-        inputs.add(toDList(i3));
-        inputs.add(toDList(i4));
+        testInputs.add(toDList(i1));
+        testInputs.add(toDList(i2));
+        testInputs.add(toDList(i3));
+        testInputs.add(toDList(i4));
 
 
         List<List<Double>> expectedOutput = new ArrayList<>();
@@ -44,7 +44,7 @@ public class NeuralNet {
         expectedOutput.add(toDList(new double[]{1.0}));
         expectedOutput.add(toDList(new double[]{0.0}));
 
-        net.run(inputs, expectedOutput, 0.009, 500000);
+        net.run(testInputs, expectedOutput, 0.7, 50000);
     }
 
 
@@ -60,8 +60,12 @@ public class NeuralNet {
     }
 
 
-    private void initRandomWeightsAndBiases() {
+    private double getRandom() {
         Random random = new Random();
+        return (random.nextDouble() * 2 - 1);
+    }
+
+    private void initRandomWeightsAndBiases() {
 
         // do we need to define this as a separate instance variable?
         // I don't think so... yet...
@@ -76,7 +80,8 @@ public class NeuralNet {
         for (int l = 1; l < numLayers; l++) {
             List<Node> layer = new ArrayList<>();
             for (int n = 0; n < sizes[l]; n++) {
-                layer.add(new SigmoidNeuron(random.nextDouble()));
+
+                layer.add(new SigmoidNeuron(getRandom()));
             }
             nodes.add(layer);
         }
@@ -89,7 +94,7 @@ public class NeuralNet {
             List<Node> layer = nodes.get(l);
             for (Node node : layer) {
                 for (Node childNode : nodes.get(l+1)) {
-                    childNode.addInput(node, random.nextDouble());
+                    childNode.addInput(node, getRandom());
                 }
             }
         }
@@ -101,19 +106,21 @@ public class NeuralNet {
     * Using this implementation instead:
     * https://kunuk.wordpress.com/2010/10/11/neural-network-backpropagation-with-java/
     */
-    private void run(List<List<Double>> inputs, List<List<Double>> expectedOutputs, double learningRateETA, int maxSteps) {
+    private void run(List<List<Double>> testInputs, List<List<Double>> expectedOutputs, double learningRateETA, int maxSteps) {
         double minError = 0.001; // for now... we should parameterize this.
-//        List<List<Double>> resultOutputs = new ArrayList<>();
+
+        List<List<Double>> actualOutputs = new ArrayList<>();
+
         int i;
         // Train neural network until minError reached or maxSteps exceeded
         double error = 1;
         for (i = 0; i < maxSteps && error > minError; i++) {
             error = 0;
-            for (int p = 0; p < inputs.size(); p++) {
-                setInputs(inputs.get(p));
+            for (int p = 0; p < testInputs.size(); p++) {
+                setInputs(testInputs.get(p));
 
                 List<Double> output = getOutput();
-//                resultOutputs.set(p, output);
+                actualOutputs.add(output); // for reporting
 
                 for (int j = 0; j < expectedOutputs.get(p).size(); j++) {
                     double err = Math.pow(output.get(j) - expectedOutputs.get(p).get(j), 2);
@@ -122,9 +129,9 @@ public class NeuralNet {
 
                 applyBackpropagation(expectedOutputs.get(p), learningRateETA);
             }
+
         }
 
-        printResult(expectedOutputs);
 
         System.out.println("Sum of squared errors = " + error);
         System.out.println("##### EPOCH " + i+"\n");
@@ -134,6 +141,7 @@ public class NeuralNet {
 //            printAllWeights();
 //            printWeightUpdate();
         }
+        printResult(testInputs, expectedOutputs, actualOutputs);
     }
 
 
@@ -152,7 +160,10 @@ public class NeuralNet {
 
         int i = 0;
 
+
+        // adjust output layer
         for (Node n : getOutputLayer()) {
+            // weights
             List<Vector> vectors = n.getVectors();
             for (Vector vector : vectors) {
                 double ak = n.value();
@@ -165,70 +176,112 @@ public class NeuralNet {
                 double newWeight = vector.getWeight() + deltaWeight;
                 vector.setDeltaWeight(deltaWeight);
                 vector.setWeight(newWeight + momentum * vector.getPrevDeltaWeight());
+
+                // for node
+                double newBias = n.getBias() + deltaWeight;
+                ((SigmoidNeuron) n).setDeltaBias(deltaWeight);
+                n.setBias(newBias + momentum * ((SigmoidNeuron) n).getDeltaBias());
+
             }
             i++;
         }
 
         for (List<Node> hiddenLayer : getHiddenLayers()) {
             // update weights for the hidden layers
-            for (Node n : hiddenLayer) {
-                List<Vector> vectors = n.getVectors();
-                for (Vector con : vectors) {
-                    double aj = n.value();
-                    double ai = con.getInput().value();
+            for (Node hiddenNode : hiddenLayer) {
+                List<Vector> vectors = hiddenNode.getVectors();
+
+                // for each Vector in this Node
+                for (Vector vector : vectors) {
+                    double aj = hiddenNode.value();
+                    double ai = vector.getInput().value();
                     double sumKoutputs = 0;
-                    int j = 0;
-                    for (Node out_neu : getOutputLayer()) {
-                        double wjk = out_neu.getVectors().get(j).getWeight(); // not quite sure if "j" is correct param here. was "n.getId()"
-                        double desiredOutput = expectedOutput.get(j);
-                        double ak = out_neu.value();
-                        j++;
+                    int vectorIndex = 0;
+
+                    // find output Node
+                    for (Node outNode : getOutputLayer()) {
+                        // we want the weight for the vector from the current hidden Node to this output Node
+//                        double wjk = outNode.getVectors().get(vectorIndex).getWeight(); // not quite sure if "j" is correct param here. was "n.getId()"
+                        double wjk = getWeightForVector(hiddenNode, outNode);
+                        double desiredOutput = expectedOutput.get(vectorIndex);
+                        double ak = outNode.value();
+                        vectorIndex++;
                         sumKoutputs = sumKoutputs
                                 + (-(desiredOutput - ak) * ak * (1 - ak) * wjk);
                     }
 
                     double partialDerivative = aj * (1 - aj) * ai * sumKoutputs;
-                    double deltaWeight = -learningRateETA * partialDerivative;
-                    double newWeight = con.getWeight() + deltaWeight;
-                    con.setDeltaWeight(deltaWeight);
-                    con.setWeight(newWeight + momentum * con.getPrevDeltaWeight());
+                    double delta = -learningRateETA * partialDerivative;
+                    double newWeight = vector.getWeight() + delta;
+                    vector.setDeltaWeight(delta);
+                    vector.setWeight(newWeight + momentum * vector.getPrevDeltaWeight());
+
+                    // for node
+                    double newBias = hiddenNode.getBias() + delta;
+                    ((SigmoidNeuron) hiddenNode).setDeltaBias(delta);
+                    hiddenNode.setBias(newBias + momentum * ((SigmoidNeuron) hiddenNode).getDeltaBias());
                 }
             }
         }
     }
 
+    private Double getWeightForVector(Node from, Node to) {
+        double ret = 0.0;
+        for (Vector v : to.getVectors()) {
+            if (v.getInput() == from) {
+                return v.getWeight();
+            }
+        }
+        throw new RuntimeException("Nodes are not connected.");
+    }
 
-
-    private void printResult(List<List<Double>> expectedOutputs)
+    private void printResult(List<List<Double>> testInputs, List<List<Double>> expectedOutputs, List<List<Double>> resultOutputs)
     {
         System.out.println("NN example with xor training");
-        for (int p = 0; p < getInputLayer().size(); p++) {
-            System.out.print("INPUTS: ");
-//            for (int x = 0; x < layers[0]; x++) {
-//                System.out.print(inputs[p][x] + " ");
-//            }
-            for (Node node : getInputLayer()) {
-                System.out.print(node.value() + " ");
-            }
 
-//            System.out.print("EXPECTED: ");
-//            for (int x = 0; x < layers[2]; x++) {
-//                System.out.print(expectedOutputs[p][x] + " ");
-//            }
+        // for each test set, print the expected and actual values
+        for (int i = 0; i < testInputs.size(); i++) {
+            System.out.print(
+                    "INPUTS: ");
+            System.out.print(testInputs.get(i)
+                    .stream()
+                    .map(d -> d + "")
+                    .collect(Collectors.joining(" ")));
 
-            System.out.print("EXPECTED OUTPUTS: ");
-            for (int i = 0; i < getOutputLayer().size(); i++) {
-                System.out.print(expectedOutputs.get(p).get(i) + " ");
-            }
+            System.out.print(" EXPECTED OUTPUTS: ");
+            System.out.print(expectedOutputs.get(i)
+                    .stream()
+                    .map(d -> d + "")
+                    .collect(Collectors.joining(" ")));
 
+            System.out.print(" ACTUAL: ");
+            System.out.print(resultOutputs.get(i)
+                    .stream()
+                    .map(d -> d + "")
+                    .collect(Collectors.joining(" ")));
 
-            System.out.print("ACTUAL: ");
-            for (Node node : getOutputLayer()) {
-                System.out.print(node.value() + " ");
-            }
             System.out.println();
         }
-        System.out.println();
+
+
+//        for (int p = 0; p < getInputLayer().size(); p++) {
+//            System.out.print("INPUTS: ");
+//            for (Node node : getInputLayer()) {
+//                System.out.print(node.value() + " ");
+//            }
+
+
+//            System.out.print("EXPECTED OUTPUTS: ");
+//            for (int i = 0; i < getOutputLayer().size(); i++) {
+//                System.out.print(expectedOutputs.get(p).get(i) + " ");
+//            }
+
+
+//            System.out.print("ACTUAL: ");
+//            for (Node node : getOutputLayer()) {
+//                System.out.print(node.value() + " ");
+//            }
+//            System.out.println();
     }
 
 
@@ -267,7 +320,7 @@ public class NeuralNet {
         return nodes.get(nodes.size() -1);
     }
 
-   private List<Integer> evenNumbers() {
+    private List<Integer> evenNumbers() {
         return IntStream.range(0, 100)
                 .filter(n -> n%2 == 0)
                 .boxed()
