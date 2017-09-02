@@ -12,7 +12,7 @@ public class NeuralNet {
     private final int numLayers;
     private final int[] sizes;
 
-    private final double epsilon = 0.000001;
+    private final double epsilon = 0.001;
     private final double momentum = 0.7f;
 
 
@@ -44,7 +44,7 @@ public class NeuralNet {
         expectedOutput.add(toDList(new double[]{1.0}));
         expectedOutput.add(toDList(new double[]{0.0}));
 
-        net.run(testInputs, expectedOutput, 0.7, 50000);
+        net.run(testInputs, expectedOutput, 0.9, 50000);
     }
 
 
@@ -130,11 +130,11 @@ public class NeuralNet {
                 applyBackpropagation(expectedOutputs.get(p), learningRateETA);
             }
 
+            System.out.println("Sum of squared errors = " + error);
+            System.out.println("##### EPOCH " + i+"\n");
         }
 
 
-        System.out.println("Sum of squared errors = " + error);
-        System.out.println("##### EPOCH " + i+"\n");
         if (i == maxSteps) {
             System.out.println("!Error training try again");
         } else {
