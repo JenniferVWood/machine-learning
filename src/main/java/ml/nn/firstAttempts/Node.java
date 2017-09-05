@@ -1,7 +1,6 @@
-package ml.net;
+package ml.nn.firstAttempts;
 
-import ml.perceptron.Perceptron;
-import ml.perceptron.Vector;
+import ml.nn.firstAttempts.perceptron.Vector;
 
 import java.util.List;
 

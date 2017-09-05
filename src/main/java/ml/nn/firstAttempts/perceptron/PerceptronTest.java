@@ -1,4 +1,4 @@
-package ml.perceptron;
+package ml.nn.firstAttempts.perceptron;
 
 public class PerceptronTest {
 

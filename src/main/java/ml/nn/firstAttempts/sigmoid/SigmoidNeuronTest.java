@@ -1,7 +1,7 @@
-package ml.sigmoid;
+package ml.nn.firstAttempts.sigmoid;
 
-import ml.perceptron.Input;
-import ml.perceptron.Perceptron;
+import ml.nn.firstAttempts.perceptron.Input;
+import ml.nn.firstAttempts.perceptron.Perceptron;
 
 public class SigmoidNeuronTest {
     public static void main(String[] args) {

@@ -1,6 +1,6 @@
-package ml.perceptron;
+package ml.nn.firstAttempts.perceptron;
 
-import ml.net.Node;
+import ml.nn.firstAttempts.Node;
 
 /**
  * Describes relationship between a pair of nodes (double-linked list)

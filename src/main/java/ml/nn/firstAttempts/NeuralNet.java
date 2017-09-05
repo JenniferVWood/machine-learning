@@ -1,8 +1,8 @@
-package ml.net;
+package ml.nn.firstAttempts;
 
-import ml.perceptron.Input;
-import ml.perceptron.Vector;
-import ml.sigmoid.SigmoidNeuron;
+import ml.nn.firstAttempts.perceptron.Vector;
+import ml.nn.firstAttempts.perceptron.Input;
+import ml.nn.firstAttempts.sigmoid.SigmoidNeuron;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -164,8 +164,8 @@ public class NeuralNet {
         // adjust output layer
         for (Node n : getOutputLayer()) {
             // weights
-            List<Vector> vectors = n.getVectors();
-            for (Vector vector : vectors) {
+            List<ml.nn.firstAttempts.perceptron.Vector> vectors = n.getVectors();
+            for (ml.nn.firstAttempts.perceptron.Vector vector : vectors) {
                 double ak = n.value();
                 double ai = vector.getInput().value();
                 double desiredOutput = expectedOutput.get(i);
@@ -189,10 +189,10 @@ public class NeuralNet {
         for (List<Node> hiddenLayer : getHiddenLayers()) {
             // update weights for the hidden layers
             for (Node hiddenNode : hiddenLayer) {
-                List<Vector> vectors = hiddenNode.getVectors();
+                List<ml.nn.firstAttempts.perceptron.Vector> vectors = hiddenNode.getVectors();
 
                 // for each Vector in this Node
-                for (Vector vector : vectors) {
+                for (ml.nn.firstAttempts.perceptron.Vector vector : vectors) {
                     double aj = hiddenNode.value();
                     double ai = vector.getInput().value();
                     double sumKoutputs = 0;

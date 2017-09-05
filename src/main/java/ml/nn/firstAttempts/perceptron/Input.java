@@ -1,7 +1,7 @@
-package ml.perceptron;
+package ml.nn.firstAttempts.perceptron;
 
 /**
- * Special kind of Perceptron, used as input for a net:
+ * Special kind of Perceptron, used as input for a nn:
  * value returns a literal, instead of a computed value.
  */
 public class Input extends Perceptron {
