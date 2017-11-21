@@ -1,6 +1,6 @@
-package ml.nn.firstAttempts.sigmoid;
+package nn.firstAttempts.sigmoid;
 
-import ml.nn.firstAttempts.perceptron.Perceptron;
+import nn.firstAttempts.perceptron.Perceptron;
 
 public class SigmoidNeuron extends Perceptron {
     private double prevDeltaBias;

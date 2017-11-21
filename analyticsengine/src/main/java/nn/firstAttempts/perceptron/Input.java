@@ -1,4 +1,4 @@
-package ml.nn.firstAttempts.perceptron;
+package nn.firstAttempts.perceptron;
 
 /**
  * Special kind of Perceptron, used as input for a nn:
