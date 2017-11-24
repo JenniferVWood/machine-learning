@@ -4,8 +4,6 @@ use weather;
 // include expected geolocation attributes and operations
 create table weather_by_location_time (
     location_name text,
-    latitude float,
-    longitude float,
     reading_date date,
     reading_time time,
     temp float,
@@ -21,4 +19,10 @@ create table ws_raw_by_location_time (
     reading_time time,
     windspeed float,
     PRIMARY KEY (location_name, reading_date, reading_time)
+ );
+
+ create table lat_long_for_name (
+    location_name text PRIMARY KEY,
+    lat float,
+    long float
  );
