@@ -1,0 +1,24 @@
+use weather;
+
+// for now, "location" is simplified to be manually selected.  Future versions may
+// include expected geolocation attributes and operations
+create table weather_by_location_time (
+    location_name text,
+    latitude float,
+    longitude float,
+    reading_date date,
+    reading_time time,
+    temp float,
+    hg float,
+    humidity float,
+    ws_one_hour_avg float,
+    PRIMARY KEY (location_name, reading_date, reading_time)
+ );
+
+create table ws_raw_by_location_time (
+    location_name text,
+    reading_date date,
+    reading_time time,
+    windspeed float,
+    PRIMARY KEY (location_name, reading_date, reading_time)
+ );
