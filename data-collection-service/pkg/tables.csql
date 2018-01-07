@@ -1,5 +1,13 @@
 use weather;
 
+// TODO: Figure out how we want to use this data, and come up with a better schema
+
+// TODO: Don't throw away so much of the data we're collecting -- I wrote this schema before really understanding
+//       what the data actually looked like
+
+// TODO: Is Cassandra really even the right tool for what I'm trying to do?
+
+
 // for now, "location" is simplified to be manually selected.  Future versions may
 // include expected geolocation attributes and operations
 create table weather_by_location_time (
@@ -26,3 +34,4 @@ create table ws_raw_by_location_time (
     lat float,
     long float
  );
+

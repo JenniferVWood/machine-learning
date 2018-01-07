@@ -6,7 +6,17 @@ import (
 )
 
 func main() {
-	fmt.Printf("Hello, world.\n")
+	fmt.Printf("Current Conditions:\n")
 
-	weather.Fetch("foo")
+	currentConditions := weather.CurrentConditions("KMSP")
+	fmt.Println(currentConditions.Props.Station)
+	fmt.Println(currentConditions.Props.BarometricPressure)
+	fmt.Println(currentConditions.Props.Temperature)
+	fmt.Println(currentConditions.Props.WindSpeed)
+	fmt.Println(currentConditions.Props.WindDirection)
+	fmt.Println(currentConditions.Props.PrecipitationLastHour)
+	fmt.Println(currentConditions.Props.TextDescription)
+	fmt.Println(currentConditions.Props.PresentWeather)
+
+
 }
