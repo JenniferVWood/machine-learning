@@ -1,11 +1,11 @@
-package weather;
+package weather
 
 import (
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 /*
@@ -15,9 +15,9 @@ import (
  */
 const apiBaseUrl = "https://api.weather.gov/stations/%v/observations/current"
 const defaultStation = "KMSP"
+
 //const apiUrl = 	"http://localhost:8080/stations/local/observations/current"
 
-// TODO: rename to CurrentConditions
 func CurrentConditions(stationId string) CurrentConditionsResponse {
 
 	if len(stationId) == 0 {
@@ -35,14 +35,13 @@ func CurrentConditions(stationId string) CurrentConditionsResponse {
 	}
 
 	req.Header.Set("UserAgent", "student experiment for reading JSON") // NWS requires a User-Agent
-	req.Header.Set("Accept", "*") // NWS requires accept
+	req.Header.Set("Accept", "*")                                      // NWS requires accept
 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer res.Body.Close()
-
 
 	var data CurrentConditionsResponse
 
@@ -59,4 +58,3 @@ func CurrentConditions(stationId string) CurrentConditionsResponse {
 	//fmt.Println(string(body))
 	return data
 }
-
