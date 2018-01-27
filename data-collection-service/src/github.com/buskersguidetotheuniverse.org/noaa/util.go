@@ -1,4 +1,4 @@
-package weather
+package noaa
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 //
 // note:  I'm pretty sure this isn't idiomatic Golang for generating errors...
 //        It's also really verbose.  With more exposure to the std libs, it would be shorter.
-func MakeKeyFromNoaaTimeStamp(station string, timeStamp string) (string, error) {
+func MakeKeyFromTimeStamp(station string, timeStamp string) (string, error) {
 	var err error = nil
 	s1 := strings.Replace(timeStamp, "T", "-", 1)
 	s1 = strings.TrimSuffix(s1, "+00:00")
@@ -43,4 +43,10 @@ func MakeKeyFromNoaaTimeStamp(station string, timeStamp string) (string, error) 
 
 	stamp := fmt.Sprintf("%v%v", station, reverseOrderTimeStamp)
 	return stamp, err
+}
+
+
+// stationID always takes the form of: https://api.weather.gov/stations/XXXX
+func StationShortForm(stationLongForm string) string {
+	return strings.TrimPrefix(stationLongForm, "https://api.weather.gov/stations/")
 }

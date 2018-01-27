@@ -1,4 +1,4 @@
-package weather
+package types
 
 /*
 	structs to model data as it's received from NOA APIs,

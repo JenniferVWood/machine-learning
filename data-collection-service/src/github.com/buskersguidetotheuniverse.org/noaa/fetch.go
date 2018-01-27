@@ -1,4 +1,4 @@
-package weather
+package noaa
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"github.com/buskersguidetotheuniverse.org/types"
 )
 
 /*
@@ -18,7 +19,7 @@ const defaultStation = "KMSP"
 
 //const apiUrl = 	"http://localhost:8080/stations/local/observations/current"
 
-func CurrentConditions(stationId string) CurrentConditionsResponse {
+func CurrentConditions(stationId string) types.CurrentConditionsResponse {
 
 	if len(stationId) == 0 {
 		stationId = defaultStation
@@ -43,7 +44,7 @@ func CurrentConditions(stationId string) CurrentConditionsResponse {
 	}
 	defer res.Body.Close()
 
-	var data CurrentConditionsResponse
+	var data types.CurrentConditionsResponse
 
 	body, readErr := ioutil.ReadAll(res.Body)
 	if readErr != nil {
