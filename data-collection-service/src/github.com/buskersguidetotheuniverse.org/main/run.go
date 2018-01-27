@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/buskersguidetotheuniverse.org/noaa"
-	"github.com/buskersguidetotheuniverse.org/persist"
+	"github.com/buskersguidetotheuniverse.org/hbase"
 )
 
 // so far, just get the data and spit some of it to console
@@ -22,6 +22,6 @@ func main() {
 	fmt.Println(currentConditions.Props.TextDescription)
 	//fmt.Println(currentConditions.Props.PresentWeather)
 
-	persist.SaveObservation(&currentConditions)
+	hbase.SaveObservation(&currentConditions)
 
 }

@@ -1,4 +1,4 @@
-package persist
+package hbase
 
 import (
 //"github.com/tsuna/gohbase"
@@ -25,18 +25,17 @@ func SaveObservation(observation *types.CurrentConditionsResponse) {
 
 	log.Printf("generated key: %v\n", key)
 
+
 	client := gohbase.NewClient("localhost")
 	//defer client.Close()  -- causes error??  "Client is dead"
 
-
-	data, err := json.Marshal(observation)
+	data, err := json.Marshal(observation.Props)
 	if err != nil {
 		log.Fatalf("Error marshaling data: %v", err)
 
 	}
 
-
-	family :=  map[string]map[string][]byte{"data": map[string][]byte {"data1": data}}
+	family :=  map[string]map[string][]byte{"data": {"data": data}}
 
 	putRequest, err := hrpc.NewPutStr(context.Background(), "observations", key, family)
 	rsp, err := client.Put(putRequest)
