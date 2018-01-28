@@ -16,7 +16,7 @@ import (
 	save data from NOAA to the local Cassandra instance
 */
 
-func SaveObservation(observation *types.CurrentConditionsResponse) {
+func SaveObservation(observation *types.CurrentConditionsResponse) error {
 
 	key, err := noaa.MakeKeyFromTimeStamp(noaa.StationShortForm(observation.Props.Station), observation.Props.Timestamp)
 	if err != nil {
@@ -45,4 +45,6 @@ func SaveObservation(observation *types.CurrentConditionsResponse) {
 	}
 
 	log.Printf("Inserted row.  Response from server: %v", rsp)
+
+	return err
 }

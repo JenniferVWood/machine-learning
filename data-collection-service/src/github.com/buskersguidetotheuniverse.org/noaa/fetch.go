@@ -19,7 +19,8 @@ const defaultStation = "KMSP"
 
 //const apiUrl = 	"http://localhost:8080/stations/local/observations/current"
 
-func CurrentConditions(stationId string) types.CurrentConditionsResponse {
+func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error) {
+	var err error = nil
 
 	if len(stationId) == 0 {
 		stationId = defaultStation
@@ -56,6 +57,5 @@ func CurrentConditions(stationId string) types.CurrentConditionsResponse {
 		log.Fatal(err)
 	}
 
-	//fmt.Println(string(body))
-	return data
+	return data, err
 }
