@@ -14,10 +14,23 @@ import (
  *
  * default: https://api.weather.gov/stations/KMSP/observations/current
  */
-const apiBaseUrl = "https://api.weather.gov/stations/%v/observations/current"
+const apiBaseUrl = "https://api.weather.gov/"
+const observationsEndpoint = apiBaseUrl + "stations/%v/observations/current"
+const nearestStationsEndpoint = apiBaseUrl + "points/%v/stations"
 const defaultStation = "KMSP"
 
 //const apiUrl = 	"http://localhost:8080/stations/local/observations/current"
+
+func NearestStations(latitude string, longitude string, limit int) [] string {
+	var stations []string
+
+	for i := 0; i < limit; i++ {
+		stations = append(stations, "KMSP") // TODO: fetch the list using the nearestStationsEndpoint
+	}
+
+	return stations
+}
+
 
 func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error) {
 	var err error = nil
@@ -26,7 +39,7 @@ func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error
 		stationId = defaultStation
 	}
 
-	apiUrl := fmt.Sprintf(apiBaseUrl, stationId)
+	apiUrl := fmt.Sprintf(observationsEndpoint, stationId)
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", apiUrl, nil)

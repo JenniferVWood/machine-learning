@@ -17,9 +17,19 @@ var wg sync.WaitGroup
 func main() {
 
 	printWeather := flag.Bool("report", false, "print conditions for each stations to console")
+
+	latitude := flag.String("lat", "", "(optional, but must be used with long) search for stations near latitude")
+	longitude := flag.String("long", "", "(optional, but must be used with longitude) search for stations near longitude")
+	maxStations := flag.Int("limit", 0, "(optional, but must be used with longitude and latitude) limit number of stations near coordinates")
+
 	flag.Parse()
 
 	stations := flag.Args()
+
+	// TODO: error checking
+	if *latitude != "" && *longitude != "" && *maxStations > 0 {
+		stations = append(stations, noaa.NearestStations(*latitude, *longitude, *maxStations)...)
+	}
 
 	numStations := len(stations)
 	if numStations == 0 {
