@@ -16,19 +16,26 @@ import (
  */
 const apiBaseUrl = "https://api.weather.gov/"
 const observationsEndpoint = apiBaseUrl + "stations/%v/observations/current"
-const nearestStationsEndpoint = apiBaseUrl + "points/%v/stations"
+const nearestStationsEndpoint = apiBaseUrl + "points/%v,%v/stations"
 const defaultStation = "KMSP"
 
 //const apiUrl = 	"http://localhost:8080/stations/local/observations/current"
+//https://api.weather.gov/points/44.9778,-93.2650/stations
 
-func NearestStations(latitude string, longitude string, limit int) [] string {
-	var stations []string
+func NearestStations(latitude string, longitude string) (types.StationsResponse, error) {
 
-	for i := 0; i < limit; i++ {
-		stations = append(stations, "KMSP") // TODO: fetch the list using the nearestStationsEndpoint
+	// it would make some sense to use the Geometry type here, but it doesn't give us what we really need, which
+	// is a guarantee of parameter order.
+	apiUrl := fmt.Sprintf(nearestStationsEndpoint, latitude, longitude)
+	body, err := readFromUrl(apiUrl)
+
+	var stations types.StationsResponse
+	err = json.Unmarshal(body, &stations)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return stations
+	return stations, err
 }
 
 
@@ -40,9 +47,21 @@ func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error
 	}
 
 	apiUrl := fmt.Sprintf(observationsEndpoint, stationId)
+	body, err := readFromUrl(apiUrl)
 
+	var data types.CurrentConditionsResponse
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return data, err
+}
+
+
+func readFromUrl(url string) ([]byte, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", apiUrl, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		// eventually we need proper error handling, as there are a number of reasons why it's reasonable
 		// to expect an error here.
@@ -58,17 +77,12 @@ func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error
 	}
 	defer res.Body.Close()
 
-	var data types.CurrentConditionsResponse
 
 	body, readErr := ioutil.ReadAll(res.Body)
 	if readErr != nil {
 		fmt.Print(readErr)
 	}
 
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return body, readErr
 
-	return data, err
 }

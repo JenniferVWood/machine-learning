@@ -11,7 +11,6 @@ import (
 	"github.com/buskersguidetotheuniverse.org/hbase"
 )
 
-var wg sync.WaitGroup
 
 // Fetch the weather from a series of NOAA stations and save the results to a local hbase instance.
 func main() {
@@ -26,9 +25,14 @@ func main() {
 
 	stations := flag.Args()
 
-	// TODO: error checking
 	if *latitude != "" && *longitude != "" && *maxStations > 0 {
-		stations = append(stations, noaa.NearestStations(*latitude, *longitude, *maxStations)...)
+		nearestStations, err := noaa.NearestStations(*latitude, *longitude)
+		if err != nil {
+			log.Fatalf("Error getting stations for point (%v, %v): %v", *latitude, *longitude, err)
+			os.Exit(1)
+		}
+		stationIds := noaa.ExtractIdsFromStationsResponse(&nearestStations, *maxStations)
+		stations = append(stations, stationIds...)
 	}
 
 	numStations := len(stations)
@@ -37,27 +41,26 @@ func main() {
 		os.Exit(0)
 	}
 
-	log.Printf("%v", os.Args)
-	log.Printf("-p: %v\n", *printWeather)
-	log.Printf("tail: %v\n", stations)
+	//log.Printf("%v", os.Args)
+	//log.Printf("-p: %v\n", *printWeather)
+	//log.Printf("tail: %v\n", stations)
 
+	var wg sync.WaitGroup
 	for _, station := range stations {
 		s := station
-		log.Printf("station: %v", s)
 		wg.Add(1)
-		go func(station string, pw bool) {
-			defer wg.Done()
-			processStation(station, pw)
-			log.Println("processing returned.")
-		}(s, *printWeather)
+		go processStation(s, *printWeather, &wg)
 	}
 
 	log.Println("waiting for all threads to return.")
 	wg.Wait()
+	log.Println("Exiting normally.")
 }
 
-func processStation(station string, printWeather bool) {
-	log.Println("processing..." + station)
+func processStation(station string, printWeather bool, wg *sync.WaitGroup) {
+	//log.Println("processing..." + station)
+	defer wg.Done()
+
 	currentConditions, err := noaa.CurrentConditions(station)
 	if err != nil {
 		log.Printf("WARN: couldn't look up weather for %v:  %v", station, err)
@@ -77,7 +80,7 @@ func processStation(station string, printWeather bool) {
 		printCurrentConditions(&currentConditions)
 	}
 
-	log.Println("done processing")
+	//log.Println("done processing")
 
 }
 

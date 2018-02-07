@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/buskersguidetotheuniverse.org/types"
 )
 
 // date-in format: 2018-01-22T21:05:00+00:00.  All timestamps are UTC
@@ -49,4 +50,17 @@ func MakeKeyFromTimeStamp(station string, timeStamp string) (string, error) {
 // stationID always takes the form of: https://api.weather.gov/stations/XXXX
 func StationShortForm(stationLongForm string) string {
 	return strings.TrimPrefix(stationLongForm, "https://api.weather.gov/stations/")
+}
+
+
+func ExtractIdsFromStationsResponse(response *types.StationsResponse, limit int) []string {
+	stations := response.Features
+
+	var stationIds []string
+	for  i := 0; i < limit && i < len(stations); i++ {
+		id := stations[i].Id
+		stationIds = append(stationIds, id)
+	}
+
+	return stationIds
 }

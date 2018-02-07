@@ -24,7 +24,7 @@ type Properties struct {
 	Icon                      string       `json:"icon"`
 	PresentWeather            interface{}  `json:"presentWeather"`
 	Temperature               Property     `json:"temperature"`
-	Dewpoint                  Property     `json:"dewPoint"`
+	DewPoint                  Property     `json:"dewPoint"`
 	WindDirection             Property     `json:"windDirection"`
 	WindSpeed                 Property     `json:"windSpeed"`
 	WindGust                  Property     `json:"windGust"`
