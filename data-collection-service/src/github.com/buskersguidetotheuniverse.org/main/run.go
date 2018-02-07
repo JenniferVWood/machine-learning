@@ -41,9 +41,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	//log.Printf("%v", os.Args)
-	//log.Printf("-p: %v\n", *printWeather)
-	//log.Printf("tail: %v\n", stations)
+	log.Printf("%v", os.Args)
+	log.Printf("-p: %v\n", *printWeather)
+	log.Printf("tail: %v\n", stations)
 
 	var wg sync.WaitGroup
 	for _, station := range stations {

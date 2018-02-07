@@ -23,7 +23,7 @@ const defaultStation = "KMSP"
 //https://api.weather.gov/points/44.9778,-93.2650/stations
 
 func NearestStations(latitude string, longitude string) (types.StationsResponse, error) {
-
+	log.Printf("fetching stations near %v, %v", latitude, longitude)
 	// it would make some sense to use the Geometry type here, but it doesn't give us what we really need, which
 	// is a guarantee of parameter order.
 	apiUrl := fmt.Sprintf(nearestStationsEndpoint, latitude, longitude)

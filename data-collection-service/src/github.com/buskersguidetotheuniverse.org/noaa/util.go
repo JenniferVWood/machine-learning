@@ -58,7 +58,7 @@ func ExtractIdsFromStationsResponse(response *types.StationsResponse, limit int)
 
 	var stationIds []string
 	for  i := 0; i < limit && i < len(stations); i++ {
-		id := stations[i].Id
+		id := stations[i].Properties.StationIdentifier
 		stationIds = append(stationIds, id)
 	}
 
