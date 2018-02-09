@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"github.com/buskersguidetotheuniverse.org/types"
 	"flag"
+	"fmt"
+	"github.com/buskersguidetotheuniverse.org/hbase"
+	"github.com/buskersguidetotheuniverse.org/noaa"
+	"github.com/buskersguidetotheuniverse.org/types"
 	"log"
 	"os"
 	"sync"
-	"github.com/buskersguidetotheuniverse.org/noaa"
-	"github.com/buskersguidetotheuniverse.org/hbase"
 )
-
 
 // Fetch the weather from a series of NOAA stations and save the results to a local hbase instance.
 func main() {

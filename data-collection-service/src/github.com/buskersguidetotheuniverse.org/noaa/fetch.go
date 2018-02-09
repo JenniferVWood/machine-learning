@@ -3,10 +3,10 @@ package noaa
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/buskersguidetotheuniverse.org/types"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"github.com/buskersguidetotheuniverse.org/types"
 )
 
 /*
@@ -38,7 +38,6 @@ func NearestStations(latitude string, longitude string) (types.StationsResponse,
 	return stations, err
 }
 
-
 func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error) {
 	var err error = nil
 
@@ -58,7 +57,6 @@ func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error
 	return data, err
 }
 
-
 func readFromUrl(url string) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -76,7 +74,6 @@ func readFromUrl(url string) ([]byte, error) {
 		log.Fatal(err)
 	}
 	defer res.Body.Close()
-
 
 	body, readErr := ioutil.ReadAll(res.Body)
 	if readErr != nil {

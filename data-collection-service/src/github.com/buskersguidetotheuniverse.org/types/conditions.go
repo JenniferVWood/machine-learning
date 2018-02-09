@@ -9,7 +9,7 @@ type CurrentConditionsResponse struct {
 	Context  interface{} `json:"@Context"`
 	Id       string      `json:"id"`
 	Type     string      `json:"type"`
-	Geometry Geometry	 `json:"geometry"`
+	Geometry Geometry    `json:"geometry"`
 	Props    Properties  `json:"properties"`
 }
 

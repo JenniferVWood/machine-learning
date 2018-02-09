@@ -1,15 +1,15 @@
 package hbase
 
 import (
-//"github.com/tsuna/gohbase"
+	//"github.com/tsuna/gohbase"
 	"log"
 
-	"github.com/buskersguidetotheuniverse.org/types"
-	"github.com/buskersguidetotheuniverse.org/noaa"
-	"github.com/tsuna/gohbase"
-	"github.com/tsuna/gohbase/hrpc"
 	"context"
 	"encoding/json"
+	"github.com/buskersguidetotheuniverse.org/noaa"
+	"github.com/buskersguidetotheuniverse.org/types"
+	"github.com/tsuna/gohbase"
+	"github.com/tsuna/gohbase/hrpc"
 )
 
 /*
@@ -25,7 +25,6 @@ func SaveObservation(observation *types.CurrentConditionsResponse) error {
 
 	log.Printf("generated key: %v\n", key)
 
-
 	client := gohbase.NewClient("localhost")
 	//defer client.Close()  -- causes error??  "Client is dead"
 
@@ -35,7 +34,7 @@ func SaveObservation(observation *types.CurrentConditionsResponse) error {
 
 	}
 
-	family :=  map[string]map[string][]byte{"data": {"data": data}}
+	family := map[string]map[string][]byte{"data": {"data": data}}
 
 	putRequest, err := hrpc.NewPutStr(context.Background(), "observations", key, family)
 	rsp, err := client.Put(putRequest)
