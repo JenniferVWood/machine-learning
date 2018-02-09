@@ -58,7 +58,7 @@ func handleStationLiterals(stations []string, printWeather *bool, wg *sync.WaitG
 			PrintWeather: *printWeather,
 			StationId:    s,
 		}
-		go noaa.ProcessStation(&request, &wg)
+		go noaa.ProcessStation(&request, wg)
 	}
 }
 
