@@ -3,10 +3,9 @@ package noaa
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/buskersguidetotheuniverse.org/net"
 	"github.com/buskersguidetotheuniverse.org/types"
-	"io/ioutil"
 	"log"
-	"net/http"
 )
 
 /*
@@ -27,7 +26,7 @@ func NearestStations(latitude string, longitude string) (types.StationsResponse,
 	// it would make some sense to use the Geometry type here, but it doesn't give us what we really need, which
 	// is a guarantee of parameter order.
 	apiUrl := fmt.Sprintf(nearestStationsEndpoint, latitude, longitude)
-	body, err := readFromUrl(apiUrl)
+	body, err := net.ReadFromUrl(apiUrl)
 
 	var stations types.StationsResponse
 	err = json.Unmarshal(body, &stations)
@@ -46,7 +45,7 @@ func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error
 	}
 
 	apiUrl := fmt.Sprintf(observationsEndpoint, stationId)
-	body, err := readFromUrl(apiUrl)
+	body, err := net.ReadFromUrl(apiUrl)
 
 	var data types.CurrentConditionsResponse
 	err = json.Unmarshal(body, &data)
@@ -55,31 +54,4 @@ func CurrentConditions(stationId string) (types.CurrentConditionsResponse, error
 	}
 
 	return data, err
-}
-
-func readFromUrl(url string) ([]byte, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		// eventually we need proper error handling, as there are a number of reasons why it's reasonable
-		// to expect an error here.
-		log.Fatal(err)
-	}
-
-	req.Header.Set("UserAgent", "student experiment for reading JSON") // NWS requires a User-Agent
-	req.Header.Set("Accept", "*")                                      // NWS requires accept
-
-	res, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		fmt.Print(readErr)
-	}
-
-	return body, readErr
-
 }
