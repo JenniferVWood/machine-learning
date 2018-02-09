@@ -8,6 +8,7 @@ import (
 	"github.com/buskersguidetotheuniverse.org/types"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -24,18 +25,8 @@ func main() {
 
 	stations := flag.Args()
 
-	if *latitude != "" && *longitude != "" && *maxStations > 0 {
-		nearestStations, err := noaa.NearestStations(*latitude, *longitude)
-		if err != nil {
-			log.Fatalf("Error getting stations for point (%v, %v): %v", *latitude, *longitude, err)
-			os.Exit(1)
-		}
-		stationIds := noaa.ExtractIdsFromStationsResponse(&nearestStations, *maxStations)
-		stations = append(stations, stationIds...)
-	}
-
 	numStations := len(stations)
-	if numStations == 0 {
+	if numStations == 0 && *latitude == "" && *longitude == "" && *maxStations == 0 {
 		fmt.Printf("No stations passed in.")
 		os.Exit(0)
 	}
@@ -45,10 +36,44 @@ func main() {
 	log.Printf("tail: %v\n", stations)
 
 	var wg sync.WaitGroup
+
+	// todo:  there's got to be a better way to do the lat/long conversion
+	if *latitude != "" && *longitude != "" && *maxStations > 0 {
+		lat, err := strconv.ParseFloat(*latitude, 32)
+		lon, err := strconv.ParseFloat(*longitude, 32)
+
+		var coords [2]float64
+		coords[0] = lat
+		coords[1] = lon
+
+		nearestStations, err := noaa.NearestStations(*latitude, *longitude)
+		if err != nil {
+			log.Fatalf("Error getting stations for point (%v, %v): %v", *latitude, *longitude, err)
+			os.Exit(1)
+		}
+
+		for _, station := range nearestStations.Features {
+			wg.Add(1)
+
+			request := types.ProcessStationRequest{
+				StationProperties: station.Properties,
+				PrintWeather:      *printWeather,
+				QueryLocation: types.Geometry{
+					Coordinates: coords,
+				},
+			}
+			go processStation(&request, &wg)
+		}
+	}
+
 	for _, station := range stations {
-		s := station
 		wg.Add(1)
-		go processStation(s, *printWeather, &wg)
+		s := station
+		request := types.ProcessStationRequest{
+			PrintWeather: *printWeather,
+			StationId:    s,
+		}
+		go processStation(&request, &wg)
 	}
 
 	log.Println("waiting for all threads to return.")
@@ -56,17 +81,22 @@ func main() {
 	log.Println("Exiting normally.")
 }
 
-func processStation(station string, printWeather bool, wg *sync.WaitGroup) {
-	//log.Println("processing..." + station)
+// Download current observations for a given station, and persist the results to our HBase instance.
+// For now, we discard information about the actual station.  Most of what we need is embedded in the conditions response.
+//
+// this might be ready to be moved to its own file
+func processStation(request *types.ProcessStationRequest, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	currentConditions, err := noaa.CurrentConditions(station)
+	currentConditions, err := noaa.CurrentConditions(request.StationProperties.StationIdentifier)
 	if err != nil {
-		log.Printf("WARN: couldn't look up weather for %v:  %v", station, err)
+		log.Printf("WARN: couldn't look up weather for %v:  %v", request.StationProperties.StationIdentifier, err)
 
 		// not a fatal error, but obviously we don't want to try to persist the result
 		return
 	}
+
+	currentConditions.Props.QueryLocation = request.QueryLocation
 
 	//TODO: Use ErrorGroup or whatever instead.
 	err = hbase.SaveObservation(&currentConditions)
@@ -75,7 +105,7 @@ func processStation(station string, printWeather bool, wg *sync.WaitGroup) {
 		os.Exit(1)
 	}
 
-	if printWeather {
+	if request.PrintWeather {
 		printCurrentConditions(&currentConditions)
 	}
 

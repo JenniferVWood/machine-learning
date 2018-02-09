@@ -39,6 +39,7 @@ type Properties struct {
 	WindChill                 Property     `json:"windChill"`
 	HeatIndex                 Property     `json:"heatIndex"`
 	CloudLayers               []CloudLayer `json:"cloudLayers"`
+	QueryLocation             Geometry     `json:"QueryLocation"`
 }
 
 type Property struct {
@@ -54,5 +55,5 @@ type CloudLayer struct {
 
 type Geometry struct {
 	Type        string     `json:"type"`
-	Coordinates [2]float32 `json:"coordinates"`
+	Coordinates [2]float64 `json:"coordinates"`
 }
