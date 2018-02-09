@@ -1,15 +1,15 @@
 package types
 
 /*
-	structs to model data as it's received from NOA APIs,
+	structs to model data as it's received from NOAA APIs,
 	and to model data to be inserted into tables in the 'weather' Cassandra namespace.
 */
 
 type CurrentConditionsResponse struct {
 	Context  interface{} `json:"@Context"`
 	Id       string      `json:"id"`
-	Type     string      `json:"type"` // lowercase type is a reserved word...
-	Geometry interface{} `json:"geometry"`
+	Type     string      `json:"type"`
+	Geometry Geometry	 `json:"geometry"`
 	Props    Properties  `json:"properties"`
 }
 
