@@ -77,6 +77,8 @@ func main() {
 }
 
 func handleStationLiterals(stations []string, printWeather *bool, wg *sync.WaitGroup) {
+	ws := service.NewWeatherService()
+
 	for _, station := range stations {
 		wg.Add(1)
 		s := station
@@ -84,12 +86,14 @@ func handleStationLiterals(stations []string, printWeather *bool, wg *sync.WaitG
 			PrintWeather: *printWeather,
 			StationId:    s,
 		}
-		go service.ProcessStation(&request, wg)
+		go ws.ProcessStation(&request, wg)
 	}
 }
 
 func handleLatLong(queryLocation *types.Geometry, printWeather *bool, wg *sync.WaitGroup) {
+	ws := service.NewWeatherService()
 
+	// I don't think it quite makes sense to move this to the WeatherService
 	nearestStations, err := noaa.NearestStations(queryLocation)
 	if err != nil {
 		log.Fatalf("Error getting stations for point (%v): %v", queryLocation, err)
@@ -104,7 +108,7 @@ func handleLatLong(queryLocation *types.Geometry, printWeather *bool, wg *sync.W
 			PrintWeather:      *printWeather,
 			QueryLocation:     *queryLocation,
 		}
-		go service.ProcessStation(&request, wg)
+		go ws.ProcessStation(&request, wg)
 	}
 
 }

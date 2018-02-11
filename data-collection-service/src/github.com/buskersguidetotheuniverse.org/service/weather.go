@@ -10,14 +10,17 @@ import (
 	"sync"
 )
 
-type Service struct {
+type WeatherService struct {
 }
 
-// TODO: This is both NOAA and HBase code.  Maybe it belongs somewhere else?
+func NewWeatherService() WeatherService {
+	return WeatherService{}
+}
+
+// TODO: do we need to worry about concurrency here?  I don't think so?
 // Download current observations for a given station, and persist the results to our HBase instance.
 // For now, we discard information about the actual station.  Most of what we need is embedded in the conditions response.
-//
-func ProcessStation(request *types.ProcessStationRequest, wg *sync.WaitGroup) {
+func (ws WeatherService) ProcessStation(request *types.ProcessStationRequest, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	currentConditions, err := noaa.CurrentConditions(request.StationProperties.StationIdentifier)
@@ -40,9 +43,6 @@ func ProcessStation(request *types.ProcessStationRequest, wg *sync.WaitGroup) {
 	if request.PrintWeather {
 		printCurrentConditions(&currentConditions)
 	}
-
-	//log.Println("done processing")
-
 }
 
 func printCurrentConditions(currentConditions *types.CurrentConditionsResponse) {
