@@ -47,3 +47,7 @@ func SaveObservation(observation *types.CurrentConditionsResponse) error {
 
 	return err
 }
+
+func SaveEnergyPrices(prices *interface{}) error {
+	return nil
+}
