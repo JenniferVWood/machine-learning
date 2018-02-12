@@ -56,18 +56,17 @@ func config() (*types.Configuration, error) {
 		panic(err)
 	}
 
-	config.PrintWeather = *flag.Bool("report", false, "print conditions for each stations to console")
-
-	latitude := flag.String("lat", "", "(optional, but must be used with long) search for stations near latitude")
-	longitude := flag.String("long", "", "(optional, but must be used with longitude) search for stations near longitude")
-
-	config.MaxStations = *flag.Int("limit", 0, "(optional, but must be used with longitude and latitude) limit number of stations near coordinates")
+	printWeather := flag.Bool("report", false, "print conditions for each stations to console")
+	latitude := flag.String("lat", "0", "(optional, but must be used with long) search for stations near latitude")
+	longitude := flag.String("long", "0", "(optional, but must be used with longitude) search for stations near longitude")
+	limit := flag.Int("limit", 0, "(optional, but must be used with longitude and latitude) limit number of stations near coordinates")
 
 	flag.Parse()
 
 	// args can be tailed with a list of stationIDs e.g. KMSP KUOW...
-	stations := flag.Args()
-
+	config.StationIds = flag.Args()
+	config.PrintWeather = *printWeather
+	config.MaxStations = *limit
 	config.IncludesCoords = err == nil && (*latitude != "" || *longitude != "")
 
 	if config.IncludesCoords {
@@ -82,7 +81,7 @@ func config() (*types.Configuration, error) {
 		}
 	}
 
-	numStations := len(stations)
+	numStations := len(config.StationIds)
 	if numStations == 0 && !config.IncludesCoords {
 		fmt.Printf("No stations passed in.")
 		os.Exit(0)
@@ -90,7 +89,7 @@ func config() (*types.Configuration, error) {
 
 	log.Printf("%v", os.Args)
 	log.Printf("-p: %v\n", config.PrintWeather)
-	log.Printf("tail: %v\n", stations)
+	log.Printf("tail: %v\n", config.StationIds)
 
 	return &config, err
 }
