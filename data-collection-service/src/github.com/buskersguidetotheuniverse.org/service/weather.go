@@ -43,8 +43,8 @@ func (ws WeatherService) ProcessStations(stations []string, printWeather bool) {
 }
 
 // TODO: do we need to worry about concurrency here?  I don't think so?
+// it all comes down to this function
 // Download current observations for a given station, and persist the results to our HBase instance.
-// For now, we discard information about the actual station.  Most of what we need is embedded in the conditions response.
 func (ws WeatherService) ProcessStation(request *ProcessStationRequest) {
 	defer ws.wg.Done()
 
@@ -57,6 +57,7 @@ func (ws WeatherService) ProcessStation(request *ProcessStationRequest) {
 	}
 
 	currentConditions.Props.QueryLocation = request.QueryLocation
+	currentConditions.Props.DistanceFromQueryLoc = GetDistance(&request.QueryLocation, &currentConditions.Geometry)
 
 	//TODO: Use ErrorGroup or whatever instead.
 	err = hbase.SaveObservation(&currentConditions)

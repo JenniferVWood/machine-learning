@@ -1,5 +1,7 @@
 package types
 
+import "github.com/buskersguidetotheuniverse.org/service"
+
 /*
 	structs to model data as it's received from NOAA APIs,
 	and to model data to be inserted into tables in the 'weather' Cassandra namespace.
@@ -40,6 +42,7 @@ type Properties struct {
 	HeatIndex                 Property     `json:"heatIndex"`
 	CloudLayers               []CloudLayer `json:"cloudLayers"`
 	QueryLocation             Geometry     `json:"QueryLocation"`
+	DistanceFromQueryLoc      Distance     `json:"Distance"`
 }
 
 type Property struct {
@@ -56,4 +59,11 @@ type CloudLayer struct {
 type Geometry struct {
 	Type        string     `json:"type"`
 	Coordinates [2]float64 `json:"coordinates"`
+}
+
+type Distance struct {
+	Bearing     int
+	Range       int
+	RangeUnit   string
+	BearingUnit string
 }
