@@ -1,7 +1,5 @@
 package types
 
-import "github.com/buskersguidetotheuniverse.org/service"
-
 /*
 	structs to model data as it's received from NOAA APIs,
 	and to model data to be inserted into tables in the 'weather' Cassandra namespace.
