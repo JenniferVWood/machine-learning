@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Tkanos/gonfig"
 	"github.com/buskersguidetotheuniverse.org/hbase"
-	"github.com/buskersguidetotheuniverse.org/noaa"
 	"github.com/buskersguidetotheuniverse.org/openei"
 	"github.com/buskersguidetotheuniverse.org/service"
 	"github.com/buskersguidetotheuniverse.org/types"
@@ -17,58 +16,29 @@ import (
 
 // Fetch the weather from a series of NOAA stations and save the results to a local hbase instance.
 func main() {
-
-	printWeather := flag.Bool("report", false, "print conditions for each stations to console")
-
-	latitude := flag.String("lat", "", "(optional, but must be used with long) search for stations near latitude")
-	longitude := flag.String("long", "", "(optional, but must be used with longitude) search for stations near longitude")
-	maxStations := flag.Int("limit", 0, "(optional, but must be used with longitude and latitude) limit number of stations near coordinates")
-
-	flag.Parse()
-
-	stations := flag.Args()
-
-	numStations := len(stations)
-	if numStations == 0 && *latitude == "" && *longitude == "" && *maxStations == 0 {
-		fmt.Printf("No stations passed in.")
-		os.Exit(0)
-	}
-
-	log.Printf("%v", os.Args)
-	log.Printf("-p: %v\n", *printWeather)
-	log.Printf("tail: %v\n", stations)
-
-	configuration := types.Configuration{}
-	err := gonfig.GetConf("/home/jennifer/src/java/machine-learning/data-collection-service/config.json", &configuration)
+	conf, err := config()
 	if err != nil {
 		panic(err)
 	}
 
-	// todo:  there's got to be a better way to do the lat/long conversion
-	lat, err := strconv.ParseFloat(*latitude, 32)
-	lon, err := strconv.ParseFloat(*longitude, 32)
-
-	var coords [2]float64
-	coords[0] = lat
-	coords[1] = lon
-	queryLocation := types.Geometry{
-		Coordinates: coords,
-	}
+	log.Printf("config: %v", *conf)
 
 	var wg sync.WaitGroup
 
 	// first the weather
-	if *latitude != "" && *longitude != "" && *maxStations > 0 {
-		handleLatLong(&queryLocation, printWeather, &wg)
+	ws := service.NewWeatherService(&wg)
+
+	if conf.IncludesCoords && conf.MaxStations > 0 {
+		err = ws.ProcessLatLong(&conf.QueryLocation, &conf.PrintWeather)
 	}
 
-	if len(stations) > 0 {
-		handleStationLiterals(stations, printWeather, &wg)
+	if len(conf.StationIds) > 0 {
+		ws.ProcessStations(conf.StationIds, conf.PrintWeather)
 	}
 
 	// now the energy pricing
-	energyClient := openei.NewClient(configuration.Key)
-	prices, _ := energyClient.CurrentEnergyPrices(queryLocation)
+	energyClient := openei.NewClient(conf.Key)
+	prices, _ := energyClient.CurrentEnergyPrices(conf.QueryLocation)
 	err = hbase.SaveEnergyPrices(&prices)
 
 	log.Println("waiting for all threads to return.")
@@ -76,39 +46,51 @@ func main() {
 	log.Println("Exiting normally.")
 }
 
-func handleStationLiterals(stations []string, printWeather *bool, wg *sync.WaitGroup) {
-	ws := service.NewWeatherService()
-
-	for _, station := range stations {
-		wg.Add(1)
-		s := station
-		request := types.ProcessStationRequest{
-			PrintWeather: *printWeather,
-			StationId:    s,
-		}
-		go ws.ProcessStation(&request, wg)
+func config() (*types.Configuration, error) {
+	config := types.Configuration{
+		IncludesCoords: false,
 	}
-}
 
-func handleLatLong(queryLocation *types.Geometry, printWeather *bool, wg *sync.WaitGroup) {
-	ws := service.NewWeatherService()
-
-	// I don't think it quite makes sense to move this to the WeatherService
-	nearestStations, err := noaa.NearestStations(queryLocation)
+	err := gonfig.GetConf("/home/jennifer/src/java/machine-learning/data-collection-service/config.json", &config)
 	if err != nil {
-		log.Fatalf("Error getting stations for point (%v): %v", queryLocation, err)
-		os.Exit(1)
+		panic(err)
 	}
 
-	for _, station := range nearestStations.Features {
-		wg.Add(1)
+	config.PrintWeather = *flag.Bool("report", false, "print conditions for each stations to console")
 
-		request := types.ProcessStationRequest{
-			StationProperties: station.Properties,
-			PrintWeather:      *printWeather,
-			QueryLocation:     *queryLocation,
+	latitude := flag.String("lat", "", "(optional, but must be used with long) search for stations near latitude")
+	longitude := flag.String("long", "", "(optional, but must be used with longitude) search for stations near longitude")
+
+	config.MaxStations = *flag.Int("limit", 0, "(optional, but must be used with longitude and latitude) limit number of stations near coordinates")
+
+	flag.Parse()
+
+	// args can be tailed with a list of stationIDs e.g. KMSP KUOW...
+	stations := flag.Args()
+
+	config.IncludesCoords = err == nil && (*latitude != "" || *longitude != "")
+
+	if config.IncludesCoords {
+		lat, _ := strconv.ParseFloat(*latitude, 32)
+		lon, _ := strconv.ParseFloat(*longitude, 32)
+
+		var coords [2]float64
+		coords[0] = lat
+		coords[1] = lon
+		config.QueryLocation = types.Geometry{
+			Coordinates: coords,
 		}
-		go ws.ProcessStation(&request, wg)
 	}
 
+	numStations := len(stations)
+	if numStations == 0 && !config.IncludesCoords {
+		fmt.Printf("No stations passed in.")
+		os.Exit(0)
+	}
+
+	log.Printf("%v", os.Args)
+	log.Printf("-p: %v\n", config.PrintWeather)
+	log.Printf("tail: %v\n", stations)
+
+	return &config, err
 }

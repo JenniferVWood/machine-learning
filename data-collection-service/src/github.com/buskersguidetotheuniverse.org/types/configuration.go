@@ -8,5 +8,10 @@ package types
 //
 // subject to change.  Definitive doc is the struct below.
 type Configuration struct {
-	Key string
+	Key            string
+	QueryLocation  Geometry
+	MaxStations    int
+	PrintWeather   bool
+	StationIds     []string
+	IncludesCoords bool
 }

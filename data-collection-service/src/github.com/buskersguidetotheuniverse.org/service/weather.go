@@ -10,18 +10,43 @@ import (
 	"sync"
 )
 
+// It is up to calling code to call WaitFor() on the passed-in sync.WaitGroup.
 type WeatherService struct {
+	wg *sync.WaitGroup
 }
 
-func NewWeatherService() WeatherService {
-	return WeatherService{}
+// It is up to calling code to call WaitFor() on the passed-in sync.WaitGroup.
+func NewWeatherService(wg *sync.WaitGroup) WeatherService {
+	return WeatherService{
+		wg: wg,
+	}
+}
+
+type ProcessStationRequest struct {
+	StationProperties types.StationProperties // populated when operating on a lat-long
+	StationId         string                  // when stationId is passed in explicitly
+	QueryLocation     types.Geometry
+	PrintWeather      bool
+}
+
+func (ws WeatherService) ProcessStations(stations []string, printWeather bool) {
+
+	for _, station := range stations {
+		ws.wg.Add(1)
+		s := station
+		request := ProcessStationRequest{
+			PrintWeather: printWeather,
+			StationId:    s,
+		}
+		go ws.ProcessStation(&request)
+	}
 }
 
 // TODO: do we need to worry about concurrency here?  I don't think so?
 // Download current observations for a given station, and persist the results to our HBase instance.
 // For now, we discard information about the actual station.  Most of what we need is embedded in the conditions response.
-func (ws WeatherService) ProcessStation(request *types.ProcessStationRequest, wg *sync.WaitGroup) {
-	defer wg.Done()
+func (ws WeatherService) ProcessStation(request *ProcessStationRequest) {
+	defer ws.wg.Done()
 
 	currentConditions, err := noaa.CurrentConditions(request.StationProperties.StationIdentifier)
 	if err != nil {
@@ -43,6 +68,30 @@ func (ws WeatherService) ProcessStation(request *types.ProcessStationRequest, wg
 	if request.PrintWeather {
 		printCurrentConditions(&currentConditions)
 	}
+}
+
+// Look up the weather stations near the queryLocation, and get reports for each.
+func (ws WeatherService) ProcessLatLong(queryLocation *types.Geometry, printWeather *bool) error {
+	nearestStations, err := noaa.NearestStations(queryLocation)
+
+	if err != nil {
+		log.Fatalf("Error getting stations for point (%v): %v", queryLocation, err)
+		os.Exit(1)
+	}
+
+	for _, station := range nearestStations.Features {
+		// will be marked done() by ws.ProcessStation()
+		ws.wg.Add(1)
+
+		request := ProcessStationRequest{
+			StationProperties: station.Properties,
+			PrintWeather:      *printWeather,
+			QueryLocation:     *queryLocation,
+		}
+		go ws.ProcessStation(&request)
+	}
+
+	return nil
 }
 
 func printCurrentConditions(currentConditions *types.CurrentConditionsResponse) {

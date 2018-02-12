@@ -1,4 +1,4 @@
-package main
+package deprecated
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
-func main() {
+func demo() {
 	// connect to the cluster
 	cluster := gocql.NewCluster("127.0.0.1")
 	cluster.Keyspace = "example"
