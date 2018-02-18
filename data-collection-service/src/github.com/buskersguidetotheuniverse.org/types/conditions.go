@@ -60,8 +60,8 @@ type Geometry struct {
 }
 
 type Distance struct {
-	Bearing     int
-	Range       int
+	Bearing     float64
+	Range       float64
 	RangeUnit   string
 	BearingUnit string
 }

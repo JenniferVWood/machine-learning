@@ -104,5 +104,8 @@ func printCurrentConditions(currentConditions *types.CurrentConditionsResponse) 
 	fmt.Println(currentConditions.Props.WindSpeed)
 	fmt.Println(currentConditions.Props.WindDirection)
 	fmt.Println(currentConditions.Props.TextDescription)
+	fmt.Printf("Bearing [%v] %v, Range[%v] %v from request origin.\n",
+		currentConditions.Props.DistanceFromQueryLoc.Bearing, currentConditions.Props.DistanceFromQueryLoc.BearingUnit,
+		currentConditions.Props.DistanceFromQueryLoc.Range, currentConditions.Props.DistanceFromQueryLoc.RangeUnit)
 
 }
