@@ -21,18 +21,20 @@ func NewEnergyService(apiKey string, wg *sync.WaitGroup) EnergyService {
 }
 
 func (service EnergyService) ProcessLocation(location *types.Geometry) error {
+	var err error
 	client := openei.NewClient(service.ApiKey)
 
 	service.WG.Add(1)
 	// for now, this is atomic.  next weekend that'll be different.
 	// get result from energy.Fetch
-	rates, _ := client.CurrentEnergyPrices(location)
+	response, _ := client.CurrentEnergyPrices(location)
 
-	fmt.Printf("Rates:", rates)
+	fmt.Printf("Rates:%v\n", response)
 
 	// persist to hadoop
-	err := hbase.SaveEnergyPrices(&rates)
-
+	if len(response.Items) > 0 {
+		err = hbase.SaveEnergyPrices(&response.Items[0].RateStructure)
+	}
 	service.WG.Done()
 	return err
 }

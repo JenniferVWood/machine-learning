@@ -33,21 +33,24 @@ func NewClient(apiKey string) Client {
 	}
 }
 
-func (client Client) CurrentEnergyPrices(location *types.Geometry) (types.EnergyRateStructure, error) {
+func (client Client) CurrentEnergyPrices(location *types.Geometry) (types.OpenEIResponse, error) {
 	var err error
 
 	url := apiBaseUrl + client.ApiKey
 	for k, v := range client.DefaultParams {
 		url += fmt.Sprintf(url, "&%v=%v", k, v)
-		fmt.Printf("energy api url: %v", url)
 	}
 
+	// FIXME: Looks like we're building this wrong.
 	url += fmt.Sprintf("&lat=%v&lon=%v", location.Coordinates[0], location.Coordinates[1])
 
-	fmt.Printf("energy api url: %v", url)
-	body, err := net.ReadFromUrl(url)
-	var rates types.EnergyRateStructure
-	err = json.Unmarshal(body, &rates)
+	fmt.Printf("energy api url: %v\n", url)
 
-	return rates, err
+	body, err := net.ReadFromUrl(url)
+	fmt.Printf("response: %v\n", body)
+
+	var response types.OpenEIResponse
+	err = json.Unmarshal(body, &response)
+
+	return response, err
 }
