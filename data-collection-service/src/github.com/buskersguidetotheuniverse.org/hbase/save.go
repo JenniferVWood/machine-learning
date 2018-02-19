@@ -48,6 +48,6 @@ func SaveObservation(observation *types.CurrentConditionsResponse) error {
 	return err
 }
 
-func SaveEnergyPrices(prices *interface{}) error {
+func SaveEnergyPrices(rates *types.EnergyRateStructure) error {
 	return nil
 }

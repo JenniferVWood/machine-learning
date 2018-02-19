@@ -13,7 +13,7 @@ func GetDistance(from *types.Geometry, to *types.Geometry) types.Distance {
 
 	// Create Ellipsoid object with WGS84-ellipsoid,
 	// angle units are degrees, distance units are meter.
-	geo1 := ellipsoid.Init("WGS84", ellipsoid.Degrees, ellipsoid.Meter, ellipsoid.LongitudeIsSymmetric, ellipsoid.BearingIsSymmetric)
+	geo1 := ellipsoid.Init("WGS84", ellipsoid.Degrees, ellipsoid.Kilometer, ellipsoid.LongitudeIsSymmetric, ellipsoid.BearingIsSymmetric)
 
 	// Calculate the distance and bearing from SFO to LAX.
 	distance, bearing := geo1.To(lat1, lon1, lat2, lon2)
@@ -22,6 +22,6 @@ func GetDistance(from *types.Geometry, to *types.Geometry) types.Distance {
 		Bearing:     bearing,
 		BearingUnit: "DEG",
 		Range:       distance,
-		RangeUnit:   "kilometers", // I think there's a bug in golang-elipsoid, that confuses M with KM.
+		RangeUnit:   "kilometers",
 	}
 }

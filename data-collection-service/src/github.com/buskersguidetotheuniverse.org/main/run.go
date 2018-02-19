@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Tkanos/gonfig"
-	"github.com/buskersguidetotheuniverse.org/hbase"
-	"github.com/buskersguidetotheuniverse.org/openei"
 	"github.com/buskersguidetotheuniverse.org/service"
 	"github.com/buskersguidetotheuniverse.org/types"
 	"log"
@@ -37,9 +35,8 @@ func main() {
 	}
 
 	// now the energy pricing
-	energyClient := openei.NewClient(conf.Key)
-	prices, _ := energyClient.CurrentEnergyPrices(conf.QueryLocation)
-	err = hbase.SaveEnergyPrices(&prices)
+	eSvc := service.NewEnergyService(conf.Key, &wg)
+	eSvc.ProcessLocation(&conf.QueryLocation)
 
 	log.Println("waiting for all threads to return.")
 	wg.Wait()
