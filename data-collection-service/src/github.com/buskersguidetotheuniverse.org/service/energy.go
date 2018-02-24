@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	//"github.com/buskersguidetotheuniverse.org/hbase"
 	"github.com/buskersguidetotheuniverse.org/hbase"
 	"github.com/buskersguidetotheuniverse.org/openei"
 	"github.com/buskersguidetotheuniverse.org/types"
@@ -29,11 +30,13 @@ func (service EnergyService) ProcessLocation(location *types.Geometry) error {
 	// get result from energy.Fetch
 	response, _ := client.CurrentEnergyPrices(location)
 
-	fmt.Printf("Rates:%v\n", response)
-
 	// persist to hadoop
-	if len(response.Items) > 0 {
-		err = hbase.SaveEnergyPrices(&response.Items[0].RateStructure)
+	if len(response) > 0 {
+		for index, _ := range response[0] {
+			response[0][index].Geometry = *location
+		}
+		fmt.Printf("Rates:%v\n", response[0])
+		err = hbase.SaveEnergyPrices(&response[0])
 	}
 	service.WG.Done()
 	return err

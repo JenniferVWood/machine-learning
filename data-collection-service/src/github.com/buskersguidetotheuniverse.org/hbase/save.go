@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/buskersguidetotheuniverse.org/noaa"
+	"github.com/buskersguidetotheuniverse.org/openei"
 	"github.com/buskersguidetotheuniverse.org/types"
 	"github.com/tsuna/gohbase"
 	"github.com/tsuna/gohbase/hrpc"
@@ -45,9 +46,31 @@ func SaveObservation(observation *types.CurrentConditionsResponse) error {
 
 	log.Printf("Inserted row.  Response from server: %v", rsp)
 
+	client.Close()
 	return err
 }
 
-func SaveEnergyPrices(rates *types.EnergyRateStructure) error {
+func SaveEnergyPrices(rates *[]types.EnergyRate) error {
+	client := gohbase.NewClient("localhost")
+
+	for _, rate := range *rates {
+
+		key := openei.MakeKeyFromTimeStampAndGeo(rate.Geometry)
+
+		data, err := json.Marshal(rate)
+
+		family := map[string]map[string][]byte{"rates": {"rates": data}}
+
+		putRequest, err := hrpc.NewPutStr(context.Background(), "energy", key, family)
+		_, err = client.Put(putRequest)
+
+		if err != nil {
+			log.Fatalf("Error inserting data: %v", err)
+		}
+
+		log.Printf("Inserted row.")
+
+	}
+
 	return nil
 }
