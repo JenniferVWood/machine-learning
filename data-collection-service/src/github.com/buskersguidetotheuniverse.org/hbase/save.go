@@ -46,7 +46,6 @@ func SaveObservation(observation *types.CurrentConditionsResponse) error {
 
 	log.Printf("Inserted row.  Response from server: %v", rsp)
 
-	client.Close()
 	return err
 }
 
