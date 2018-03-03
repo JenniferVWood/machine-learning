@@ -29,7 +29,7 @@ type Client struct {
 func NewClient(apiKey string) Client {
 	return Client{
 		ApiKey:        apiKey,
-		DefaultParams: map[string]string{"version": "latest", "format": "json", "limit": "1", "sector": "Residential", "approved": "true", "detail": "full"},
+		DefaultParams: map[string]string{"version": "latest", "format": "json", "limit": "1", "sector": "Commercial", "approved": "true", "detail": "full"},
 	}
 }
 
@@ -48,12 +48,12 @@ func (client Client) CurrentEnergyPrices(location *types.Geometry) ([][]types.En
 	//fmt.Printf("energy api url: %v\n", url)
 
 	body, err := net.ReadFromUrl(url)
-	//fmt.Printf("raw response: %v\n", string(body))
+	fmt.Printf("raw response: %v\n", string(body))
 
 	var response types.OpenEIResponse
 	err = json.Unmarshal(body, &response)
 
-	//fmt.Printf("parsed response: %v\n", response)
+	fmt.Printf("parsed response: %v\n", response)
 
 	return response.Items[0].EnergyRateStructure, err
 }

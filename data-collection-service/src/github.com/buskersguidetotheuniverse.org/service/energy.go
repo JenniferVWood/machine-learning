@@ -9,6 +9,9 @@ import (
 	"sync"
 )
 
+// eventually, our analysis will be based on this article:
+// https://www.eia.gov/energyexplained/index.cfm?page=electricity_factors_affecting_prices
+
 type EnergyService struct {
 	ApiKey string
 	WG     *sync.WaitGroup
